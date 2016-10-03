@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
 import argparse
-import docker
 import logging
 import subprocess
 
+import docker
 
 LOG = logging.getLogger(__name__)
 
@@ -119,12 +119,36 @@ class hostRegistry (object):
 
         LOG.info('writing hosts to %s', self.hostsfile)
 
-        with open(self.hostsfile, 'w') as fd:
-            for name, data in self.byname.items():
-                for nwname, address in data['networks'].items():
-                    fd.write('%s %s.%s.%s\n' % (
-                        address, name, nwname, self.domain))
+        # with open(self.hostsfile, 'w') as fd:
+        #     for name, data in self.byname.items():
+        #         for nwname, address in data['networks'].items():
+        #             fd.write('%s %s.%s.%s\n' % (
+        #                 address, name, nwname, self.domain))
 
+        with open(self.hostsfile,'r') as fi:
+            lines = fi.readlines()
+            with open(self.hostsfile,'w') as fo:
+                pointer = "ne"
+                for line in lines:
+                    LOG.info("LINE [%s]", line)
+                    fo.write(line)
+                    if(line.startswith("==dnsthing==")):
+                        pointer = "found"
+                        LOG.info("DIVIDER FOUND, TRUNCATING")
+                        for name, data in self.byname.items():
+                            for nwname, address in data['networks'].items():
+                                LOG.info("WRITING CONTAINER DATA")
+                                fo.write('%s %s.%s.%s\n' % (
+                                    address, name, nwname, self.domain))
+                        break
+                if pointer == "ne":
+                    LOG.info("DIVIDER NOT FOUND, CREATING")
+                    fo.write("==dnsthing==\n")
+                    fo.write("\n")
+                    for name, data in self.byname.items():
+                        for nwname, address in data['networks'].items():
+                            fo.write('%s %s.%s.%s\n' % (
+                                address, name, nwname, self.domain))
         if self.onupdate:
             self.onupdate()
 

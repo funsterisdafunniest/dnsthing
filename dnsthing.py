@@ -132,7 +132,7 @@ class hostRegistry (object):
                 for line in lines:
                     LOG.info("LINE [%s]", line)
                     fo.write(line)
-                    if(line.startswith("==dnsthing==")):
+                    if(line.startswith("#==dnsthing==")):
                         pointer = "found"
                         LOG.info("DIVIDER FOUND, TRUNCATING")
                         for name, data in self.byname.items():
@@ -143,7 +143,7 @@ class hostRegistry (object):
                         break
                 if pointer == "ne":
                     LOG.info("DIVIDER NOT FOUND, CREATING")
-                    fo.write("==dnsthing==\n")
+                    fo.write("#==dnsthing==\n")
                     fo.write("\n")
                     for name, data in self.byname.items():
                         for nwname, address in data['networks'].items():
